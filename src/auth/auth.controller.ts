@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   HttpCode,
@@ -9,6 +10,9 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from './auth.guard';
+import { Roles } from './roles.decorator';
+import { RolesGuard } from './roles.guard';
+import { loginDto } from './auth.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -16,7 +20,7 @@ export class AuthController {
 
   @Post('/login')
   @HttpCode(200)
-  async login(@Req() req, @Res() res) {
+  async login(@Body() loginDto: loginDto, @Req() req, @Res() res) {
     const {
       body: { email, password },
     } = req;
@@ -30,7 +34,8 @@ export class AuthController {
   }
 
   @Get('/profile')
-  @UseGuards(AuthGuard)
+  @Roles('User')
+  @UseGuards(AuthGuard, RolesGuard)
   async getprofile(@Req() req) {
     return req.user;
   }

@@ -15,10 +15,10 @@ export class AuthService {
 
   async validateUser(email, password) {
     const user = await this.userSevices.findOne({ where: { email } });
-    if (!user || !bcrypt.compare(password, user.password)) {
-      throw new NotFoundException('User Not Found Please Check Details');
+    if (user && bcrypt.compareSync(password, user.password)) {
+      return user;
     }
-    return user;
+    throw new NotFoundException('User Not Found Please Check Details');
   }
 
   async createtoken(user) {

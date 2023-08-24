@@ -1,7 +1,14 @@
-import { BeforeInsert, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 @Entity()
+@Unique(['email'])
 export class users {
   @PrimaryGeneratedColumn('uuid')
   id: number;
@@ -17,6 +24,16 @@ export class users {
 
   @Column()
   password: string;
+
+  @Column({
+    type: 'enum',
+    enum: ['User', 'Admin'],
+    default: 'User',
+  })
+  role: string;
+
+  @Column({ nullable: true })
+  image: string;
 
   @BeforeInsert()
   async hashPasswordBeforeInsert() {

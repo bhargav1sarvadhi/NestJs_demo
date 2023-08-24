@@ -5,6 +5,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import * as Joi from 'joi';
+import { ValidationError } from 'sequelize';
 
 @Injectable()
 export class JoiValidationPipe implements PipeTransform {

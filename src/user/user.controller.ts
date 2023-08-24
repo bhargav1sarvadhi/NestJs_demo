@@ -7,22 +7,39 @@ import {
   HttpCode,
   Param,
   Post,
+  Req,
   Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { JoiValidationPipe } from 'src/pipes/joi-validation.pipe';
 import { createUserSchema } from 'src/validation-schemas/user.validation-schema';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateUserDto } from './user.dto';
+import { diskStorage } from 'multer';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
   @Post()
-  @UsePipes(new JoiValidationPipe(createUserSchema))
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({ destination: './uploads' }),
+    }),
+  )
   @HttpCode(201)
-  async createuser(@Body() data, @Res() res) {
-    const user = await this.userService.createuser(data);
+  async createuser(
+    @Body(new JoiValidationPipe(createUserSchema)) CreateUserDto: CreateUserDto,
+    @Res() res,
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req,
+  ) {
+    req.body.image = file.filename;
+    const user = await this.userService.createuser(req.body);
     return res
       .status(201)
       .json({ sucess: true, message: 'User created successfully' });
